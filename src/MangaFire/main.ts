@@ -19,14 +19,13 @@ class Provider {
 
         if (data?.result?.html) return [];
 
-        // --- JSON path: data is { items: [...] } ---
         if (data?.items && Array.isArray(data.items)) {
         return data.items.map(item => ({
-            id: item.id || item.slug || '',
-            title: item.title || item.name || '',
+            id: String(item.id) || '',
+            title: item.title || '',
             synonyms: item.synonyms || [],
-            year: item.year || item.releaseYear || 1,
-            image: item.image || item.poster || item.cover || ''
+            year: item.year || 1,
+            image: item.image || ''
         }));
         }
 
