@@ -11,7 +11,7 @@ class Provider {
     async search(opts: { query: string }): Promise<SearchResult[]> {
         //const vrf = this.generate(opts.query.trim());
         const vrf= "8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ"
-        const res = await fetch("https://mangafire.to/api/titles?keyword=Soul+Eater&content_rating%5B%5D=safe%2Csuggestive&order%5Brelevance%5D=desc&page=1&limit=30&vrf=8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ");
+        const res = await fetch("https://mangafire.to/api/titles?keyword=Soul%20Eater&content_rating%5B%5D=safe&content_rating%5B%5D=suggestive&order%5Brelevance%5D=desc&page=1&limit=30&vrf=8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ");
         // await fetch(`${this.api}/browse?keyword=${opts.query.replaceAll(" ", "+")}&sort=relevance:desc&vrf=${vrf}`);
         const data = await res.json();
 
