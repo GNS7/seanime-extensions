@@ -10,7 +10,7 @@ class Provider {
 
     async search(opts: { query: string }): Promise<SearchResult[]> {
         const vrf = this.generate(opts.query.trim());
-        const res = await fetch(`${this.api}/ajax/manga/search?keyword=${opts.query.replaceAll(" ", "+")}&vrf=${vrf}`);
+        const res = await fetch(`${this.api}/browse?keyword=${opts.query.replaceAll(" ", "+")}&vrf=${vrf}`);
         const data = await res.json();
 
         if (!data?.result?.html) return [];
@@ -32,8 +32,12 @@ class Provider {
         });
     }
 
+    // ------------------------
+    // Chapters
+    // ------------------------
+
     async findChapters(mangaId: string): Promise<ChapterDetails[]> {
-        const reslangs = await fetch(`${this.api}/manga/${mangaId}`);
+        const reslangs = await fetch(`${this.api}/api/titles/${mangaId}/chapters`); // Add vrf,
         const htmlLang = await reslangs.text();
 
         const dataCodes = this.extractLanguageCodes(htmlLang);
@@ -50,7 +54,44 @@ class Provider {
     async findChapterPages(chapterId: string): Promise<ChapterPage[]> {
         // Para chapter pages, el input es "chapter@" + chapterId
         const vrf = this.generate("chapter@" + chapterId);
-        const res = await fetch(`${this.api}/ajax/read/chapter/${chapterId}?vrf=${vrf}`);
+        const res = await fetch(`${this.api}/api/chapters/${chapterId}?vrf=${vrf}`);
+        const data = await res.json();
+        const images = data.result?.images;
+
+        if (!images?.length) return [];
+
+        return images.map((img: any[], i: number) => ({
+            url: img[0],
+            index: i,
+            headers: {
+                Referer: `${this.api}`,
+            },
+        }));
+    }
+
+    // ------------------------
+    // Volumes
+    // ------------------------
+
+        async findVolumes(mangaId: string): Promise<ChapterDetails[]> {
+        const reslangs = await fetch(`${this.api}/api/titles/${mangaId}/volumes`); // Add vrf, example for 2z2 -> 8sK3xtqdFdvBwaXHzFprcYvtjA
+        const htmlLang = await reslangs.text();
+
+        const dataCodes = this.extractLanguageCodes(htmlLang);
+        const allChapters: ChapterDetails[] = [];
+
+        for (const lang of dataCodes) {
+            const chapters = await this.fetchChaptersForLanguage(mangaId, lang);
+            allChapters.push(...chapters);
+        }
+
+        return allChapters;
+    }
+
+    async findVolumesPages(volumeId: string): Promise<ChapterPage[]> {
+        // Para chapter pages, el input es "chapter@" + chapterId
+        const vrf = this.generate("volume@" + volumeId);
+        const res = await fetch(`${this.api}/api/volumes/${volumeId}?vrf=${vrf}`);
         const data = await res.json();
         const images = data.result?.images;
 
@@ -86,13 +127,14 @@ class Provider {
         return Array.from(langMap.values());
     }
 
+    // TODO: Add volumes function
     private async fetchChaptersForLanguage(mangaId: string, lang: string): Promise<ChapterDetails[]> {
         const mangaIdShort = mangaId.split(".").pop() || "";
 
         const vrf = this.generate(mangaIdShort + "@chapter@" + lang);
 
         const res = await fetch(
-            `${this.api}/ajax/read/${mangaIdShort}/chapter/${lang}?vrf=${vrf}`
+            `${this.api}/api/titles/${mangaIdShort}/chapters/?language=${lang}&vrf=${vrf}`
         );
 
         const data = await res.json();
