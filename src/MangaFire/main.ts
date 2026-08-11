@@ -20,14 +20,19 @@ class Provider {
         if (data?.result?.html) return [];
 
         if (data?.items && Array.isArray(data.items)) {
-        return data.items.map(item => ({
+        const results = data.items.map(item => ({
             id: String(item.id) || '',
             title: item.title || '',
             synonyms: item.synonyms || [],
             year: item.year || 1,
-            image: item.image || ''
+            image: item.poster?.medium || ''  // safe access with optional chaining
         }));
-        }
+
+        console.log('Transformed items:', results);
+        console.log('First item:', results[0]);
+
+        return results;
+}
 
         // if (!data?.result?.html) return [];
 
