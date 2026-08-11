@@ -10,16 +10,16 @@ class Provider {
 
     async search(opts: { query: string }): Promise<SearchResult[]> {
         const vrf = this.generate(opts.query.trim());
-        const res = await fetch(`${this.api}/browse?keyword=${opts.query.replaceAll(" ", "+")}&vrf=${vrf}`);
+        const res = await fetch(`${this.api}/browse?keyword=${opts.query.replaceAll(" ", "+")}&sort=relevance:desc`);
         const data = await res.json();
 
         if (!data?.result?.html) return [];
 
         const $ = LoadDoc(data.result.html);
 
-        return $("a.unit").map((i, e) => {
-            const id = e.attr("href")?.replace("/manga/", "")
-            const title = e.find("h6").text().trim()
+        return $("a.title-rows__link").map((i, e) => {
+            const id = e.attr("href")?.replace("/title/", "")
+            const title = e.selectFirst("span.title-row-card__title")?.text()?.trim()
             const image = e.find("img").attr("src")
 
             return {
