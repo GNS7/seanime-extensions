@@ -9,31 +9,44 @@ class Provider {
     }
 
     async search(opts: { query: string }): Promise<SearchResult[]> {
-        //const vrf = this.generate(opts.query.trim());
-        const vrf= "8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ"
+        // const vrf = this.generate(opts.query.trim());
+        // const vrf= "8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ"
         const res = await fetch("https://mangafire.to/api/titles?keyword=Soul%20Eater&content_rating%5B%5D=safe&content_rating%5B%5D=suggestive&order%5Brelevance%5D=desc&page=1&limit=30&vrf=8sK3xtqdFZdOu6WNqS1bZ0shnUDqyRXMnh4NlZ7aYCPUhmAbm1C1qPzeL_OIIf0obIggCZIHJHIF_VdagQOsZhrpZQ1Gm62uZqWFmBnE1ez9boh_96Jlz6vkdU36-Jbi6qTGOqAjtbmiiCVWh0UqNTCxJUQ");
         // await fetch(`${this.api}/browse?keyword=${opts.query.replaceAll(" ", "+")}&sort=relevance:desc&vrf=${vrf}`);
         const data = await res.json();
 
-        console.log(data);
+        console.log(data.items?.[0]);
 
-        if (!data?.result?.html) return [];
+        if (data?.result?.html) return [];
 
-        const $ = LoadDoc(data.result.html);    
+        // --- JSON path: data is { items: [...] } ---
+        if (data?.items && Array.isArray(data.items)) {
+        return data.items.map(item => ({
+            id: item.id || item.slug || '',
+            title: item.title || item.name || '',
+            synonyms: item.synonyms || [],
+            year: item.year || item.releaseYear || 1,
+            image: item.image || item.poster || item.cover || ''
+        }));
+        }
 
-        return $("a.title-rows__link").map((i, e) => {
-            const id = e.attr("href")?.replace("/title/", "")
-            const title = e.selectFirst("span.title-row-card__title")?.text()?.trim()
-            const image = e.find("img").attr("src")
+        // if (!data?.result?.html) return [];
 
-            return {
-                id,
-                title,
-                synonyms: [],
-                year: 1,
-                image
-            };
-        });
+        // const $ = LoadDoc(data.result.html);    
+
+        // return $("a.title-rows__link").map((i, e) => {
+        //     const id = e.attr("href")?.replace("/title/", "")
+        //     const title = e.selectFirst("span.title-row-card__title")?.text()?.trim()
+        //     const image = e.find("img").attr("src")
+
+        //     return {
+        //         id,
+        //         title,
+        //         synonyms: [],
+        //         year: 1,
+        //         image
+        //     };
+        // });
     }
 
     // ------------------------
